@@ -1,8 +1,24 @@
+.page-list {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    gap: 2rem;
+    padding: 2rem;
+    background: var(--color-background);
+    color: var(--color-on-background);
+}
+
+/* --- Layout Containers --- */
 .page-list .list-container,
 .page-list .level-container,
 .page-list .meta-container {
-    padding-block: 2rem;
+    background: var(--color-surface, #fff);
+    border-radius: var(--radius, 0.75rem);
+    box-shadow: var(--shadow, 0 2px 8px rgba(0, 0, 0, 0.08));
+    padding: 2rem;
+    transition: background var(--transition, 0.2s ease),
+                box-shadow var(--transition, 0.2s ease);
 }
+
 .page-list .list-container {
     padding-inline: 1rem;
 }
@@ -10,40 +26,64 @@
     padding-right: 2rem;
 }
 
+.page-list .list-container:hover,
+.page-list .level-container:hover,
+.page-list .meta-container:hover {
+    background: var(--color-surface-hover, #f8f9fb);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* --- List Table --- */
 .page-list .list {
+    width: 100%;
+    border-collapse: collapse;
     table-layout: auto;
 }
+
 .page-list .list .rank {
     text-align: end;
     padding-right: 1rem;
+    font-weight: 600;
+    color: var(--color-primary);
 }
+
 .page-list .list .level {
     width: 100%;
 }
+
 .page-list .list .level button {
-    background-color: var(--color-background);
+    background-color: var(--color-surface, #fff);
     color: var(--color-on-background);
-    border: none;
-    border-radius: 0.5rem;
-    padding: 1rem;
+    border: 1px solid transparent;
+    border-radius: 0.75rem;
+    padding: 1rem 1.25rem;
     text-align: start;
     word-break: normal;
     overflow-wrap: anywhere;
     cursor: pointer;
+    transition: all var(--transition, 0.2s ease);
 }
+
 .page-list .list .level.error button {
     color: var(--color-error);
     cursor: not-allowed;
     text-decoration: line-through;
+    opacity: 0.7;
 }
+
 .page-list .list .level button:hover {
-    background-color: var(--color-background-hover);
-    color: var(--color-on-background-hover);
+    background-color: var(--color-primary-hover, #005fcc);
+    color: var(--color-on-primary, #fff);
+    transform: translateY(-2px);
 }
+
 .page-list .list .level.active button {
     background-color: var(--color-primary);
     color: var(--color-on-primary);
+    border-color: transparent;
 }
+
+/* --- Level Details --- */
 .page-list .level-container .level {
     display: flex;
     flex-direction: column;
@@ -51,78 +91,162 @@
     padding-right: 2rem;
     max-width: 48rem;
 }
+
 .page-list .level-container .level .level-authors {
     display: grid;
     grid-template-columns: max-content 1fr;
-    grid-auto-rows: max-content;
     gap: 1rem;
+    font-size: 0.95rem;
+    color: var(--color-on-background);
 }
+
 .page-list .level-container .level .video {
-    aspect-ratio: 16/9;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
 }
+
+/* --- Stats --- */
 .page-list .level-container .level .stats {
     display: flex;
     justify-content: space-evenly;
     text-align: center;
     gap: 2rem;
+    background: var(--color-surface-hover, #f8f9fb);
+    border-radius: var(--radius);
+    padding: 1rem;
 }
+
 .page-list .level-container .level .stats li {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
+    gap: 0.5rem;
+    font-weight: 500;
 }
+
+/* --- Records Table --- */
 .page-list .level-container .level .records {
+    width: 100%;
+    border-collapse: collapse;
     table-layout: fixed;
 }
+
+.page-list .level-container .level .records tr td {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
 .page-list .level-container .level .records tr td:not(:last-child) {
     padding-right: 1rem;
 }
+
 .page-list .level-container .level .records .percent,
 .page-list .level-container .level .records .user,
 .page-list .level-container .level .records .hz {
     padding-block: 1rem;
 }
+
 .page-list .level-container .level .records .user {
     width: 100%;
 }
+
 .page-list .level-container .level .records .percent,
 .page-list .level-container .level .records .hz {
     text-align: end;
 }
-.page-list .meta-container .og a:hover,
+
+.page-list .level-container .level .records a {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color var(--transition);
+}
+
 .page-list .level-container .level .records a:hover {
+    color: var(--color-primary-hover);
     text-decoration: underline;
 }
+
+/* --- Meta --- */
 .page-list .meta {
     display: flex;
     flex-direction: column;
     gap: 2rem;
 }
+
 .page-list .meta .errors {
     display: flex;
     flex-direction: column;
     gap: 1rem;
 }
+
 .page-list .meta .errors .error {
     padding: 1rem;
     background-color: var(--color-error);
     color: var(--color-on-error);
-    border-radius: 0.5rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
 }
+
 .page-list .meta .editors {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
 }
+
 .page-list .meta .editors li {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    font-size: 0.95rem;
 }
+
 .page-list .meta .editors li img {
     height: 1.25rem;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
+
+.page-list .meta .editors li a {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color var(--transition);
+}
+
 .page-list .meta .editors li a:hover {
     text-decoration: underline;
+    color: var(--color-primary-hover);
+}
+
+/* --- Fix overlapping text in list and leaderboard tables --- */
+.page-list .level-container .level .records tr,
+.page-leaderboard .board tr {
+    display: grid;
+    grid-template-columns: 5rem 1fr 5rem; /* left | center | right */
+    align-items: center;
+    width: 100%;
+}
+
+.page-list .level-container .level .records .percent,
+.page-leaderboard .board .rank {
+    text-align: right;
+    justify-self: end;
+}
+
+.page-list .level-container .level .records .user,
+.page-leaderboard .board .user {
+    text-align: left;
+    justify-self: start;
+}
+
+.page-list .level-container .level .records .hz,
+.page-leaderboard .board .total {
+    text-align: right;
+    justify-self: end;
+}
+
+/* Optional: spacing tweak */
+.page-list .level-container .level .records td,
+.page-leaderboard .board td {
+    padding-block: 0.75rem;
 }
