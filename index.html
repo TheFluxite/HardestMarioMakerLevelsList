@@ -37,15 +37,16 @@
     <body id="app">
         <header :class="{ dark: store.dark }">
             <div class="logo">
-                <h2>Sample List</h2>
-                <p>v1.0.0</p>
+                <h2>Hardest Mario Maker Levels</h2>
+                <p>v2</p>
             </div>
+            <img src="assets/marioTopBar.png" alt="Mario, the Builder">
             <nav class="nav">
                 <router-link class="nav__tab" to="/">
-                    <span class="type-label-lg">List</span>
+                    <span class="type-label-lg">Levels</span>
                 </router-link>
                 <router-link class="nav__tab" to="/leaderboard">
-                    <span class="type-label-lg">Leaderboard</span>
+                    <span class="type-label-lg">Players</span>
                 </router-link>
                 <router-link class="nav__tab" to="/roulette">
                     <span class="type-label-lg">Roulette</span>
@@ -69,7 +70,7 @@
                         class="nav__cta type-label-lg"
                         href="#"
                         target="_blank"
-                        >Submit Record</a
+                        >Submit Completion</a
                     >
                 </div>
             </nav>
