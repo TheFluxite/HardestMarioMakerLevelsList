@@ -89,31 +89,41 @@ export default {
                             </li>
                         </ol>
                     </template>
-                    <h3>Submission Requirements</h3>
-                    <p>
-                        Achieved the record without using hacks (however, FPS bypass is allowed, up to 360fps)
-                    </p>
-                    <p>
-                        Achieved the record on the level that is listed on the site - please check the level ID before you submit a record
-                    </p>
-                    <p>
-                        Have either source audio or clicks/taps in the video. Edited audio only does not count
-                    </p>
-                    <p>
-                        The recording must have a previous attempt and entire death animation shown before the completion, unless the completion is on the first attempt. Everyplay records are exempt from this
-                    </p>
-                    <p>
-                        The recording must also show the player hit the endwall, or the completion will be invalidated.
-                    </p>
-                    <p>
-                        Do not use secret routes or bug routes
-                    </p>
-                    <p>
-                        Do not use easy modes, only a record of the unmodified level qualifies
-                    </p>
-                    <p>
-                        Once a level falls onto the Legacy List, we accept records for it for 24 hours after it falls off, then afterwards we never accept records for said level
-                    </p>
+                    <h1>Mario Maker 2 Hardest Levels Leaderboard – Submission Rules</h1>
+
+    <p>These rules define the requirements for submitting cleared levels to the Super Mario Maker 2 hardest-levels leaderboard. Submissions must be verifiable, transparent, and fair. All entries are checked for compliance before being accepted.</p>
+
+    <h2>Submission Requirements</h2>
+    <ul>
+        <li><strong>Format:</strong> Submissions must be provided as YouTube video links. Include the level name and course code in the video title or description.</li>
+        <li><strong>Full Run Visible:</strong> The video must show the entire level run from start to finish. Only trimming before the level starts or after the clear screen is allowed.</li>
+        <li><strong>Audio/Clicks Not Required:</strong> Audio commentary, microphone input, or controller sounds are not required. Game audio is sufficient.</li>
+        <li><strong>Video Quality:</strong> Ensure gameplay is clearly visible. A resolution of at least 720p at 30 FPS is recommended.</li>
+    </ul>
+
+    <h2>Legitimacy</h2>
+    <ul>
+        <li><strong>No Cheating or Hacks:</strong> All runs must be legitimate. No cheat devices, save-state abuse, auto-players, or modified software.</li>
+        <li><strong>Official Hardware:</strong> Completions must be done on a standard, unmodified Nintendo Switch running the official game.</li>
+        <li><strong>Fair Play:</strong> The submitting player must be the one who actually completed the level. Shared accounts or pooled submissions are not allowed.</li>
+    </ul>
+
+    <h2>Level Criteria</h2>
+    <ul>
+        <li><strong>Leaderboard Levels Only:</strong> Only levels currently on the leaderboard are eligible. Removed levels may only accept submissions within 24 hours of removal.</li>
+        <li><strong>Official Course:</strong> Submissions must be from the official, unmodified version uploaded via the in-game course sharing system.</li>
+        <li><strong>No Unintended Skips:</strong> Do not use dev exits, glitches, or unintended shortcuts to bypass the level.</li>
+    </ul>
+
+    <h2>Additional Rules</h2>
+    <ul>
+        <li><strong>Post-Removal Submissions:</strong> Levels removed from the leaderboard can still accept submissions for 24 hours after removal.</li>
+        <li><strong>Clear Goal and Screen:</strong> The video must clearly show the completion, including touching the flagpole or breaking the castle axe and the ensuing clear animation or screen.</li>
+        <li><strong>Video Editing:</strong> Only minor trimming before the start or after the clear is allowed. Do not merge attempts or hide any part of the run.</li>
+        <li class="note"><strong>Optional:</strong> Showing your Maker ID or username at the start can help verification.</li>
+    </ul>
+
+    <p>Submissions failing to meet these requirements may be rejected. Ensure your video clearly demonstrates the full, legitimate completion of the level.</p>
                 </div>
             </div>
         </main>
