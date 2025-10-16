@@ -136,6 +136,11 @@ export default {
 
         this.levels = roulette.levels || [];
         this.progression = roulette.progression || [];
+
+        // If the current level(s) at load are "Deleted", auto-complete them
+        this.$nextTick(() => {
+            this.autoCompleteDeleted();
+        });
     },
     computed: {
         currentLevel() {
@@ -163,6 +168,12 @@ export default {
                 return `List finished — you completed all ${this.levels.length} levels!`;
             }
             return '';
+        },
+    },
+    watch: {
+        // watch the computed currentLevel so when it changes we auto-complete Deleted ones
+        currentLevel() {
+            this.autoCompleteDeleted();
         },
     },
     methods: {
@@ -216,6 +227,11 @@ export default {
 
             this.loading = false;
             this.save();
+
+            // Immediately auto-complete any front-loaded "Deleted" levels
+            this.$nextTick(() => {
+                this.autoCompleteDeleted();
+            });
         },
         save() {
             localStorage.setItem(
@@ -240,7 +256,7 @@ export default {
                 name: lvl.name,
             });
 
-            // if reached completion criteria, auto-save and set givenUp? keep givenUp false
+            // if reached completion criteria, auto-save and keep givenUp false
             this.save();
         },
         onGiveUp() {
@@ -288,6 +304,11 @@ export default {
                 this.save();
                 this.givenUp = false;
                 this.showRemaining = false;
+
+                // Auto-complete any leading "Deleted" levels after import
+                this.$nextTick(() => {
+                    this.autoCompleteDeleted();
+                });
             } catch {
                 this.showToast('Invalid file.');
                 return;
@@ -306,6 +327,37 @@ export default {
             a.download = 'tsl_roulette';
             a.click();
             URL.revokeObjectURL(a.href);
+        },
+        /**
+         * Auto-complete consecutive "Deleted" levels starting from the current position.
+         * Pushes a snapshot of each deleted level into progression and saves.
+         */
+        autoCompleteDeleted() {
+            if (this.givenUp || this.hasCompleted) return;
+
+            let autoCount = 0;
+            // loop while there's a current level and it's id === 'Deleted' and we haven't completed target/list
+            while (
+                this.currentLevel &&
+                this.currentLevel.id === 'Deleted' &&
+                !this.hasCompleted &&
+                !this.givenUp
+            ) {
+                const lvl = this.currentLevel;
+                // push snapshot
+                this.progression.push({
+                    rank: lvl.rank,
+                    id: lvl.id,
+                    name: lvl.name,
+                });
+                autoCount += 1;
+                // continue loop — computed currentLevel will update because progression changed
+            }
+
+            if (autoCount > 0) {
+                this.save();
+                this.showToast(`Auto-completed ${autoCount} deleted level${autoCount > 1 ? 's' : ''}.`);
+            }
         },
         showToast(msg) {
             this.toasts.push(msg);
