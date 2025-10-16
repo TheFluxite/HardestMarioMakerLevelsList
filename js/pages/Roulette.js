@@ -41,18 +41,19 @@ export default {
                 <div class="levels">
                     <template v-if="levels.length > 0">
                         <!-- Completed Levels -->
-                        <div class="level" v-for="(level, i) in levels.slice(0, progression.length)">
-                            <a :href="level.video" class="video">
+                        <div class="level" v-for="(level, i) in levels.slice(0, progression.length)" :key="'done-'+i">
+                            <a :href="level.video" class="video" target="_blank">
                                 <img :src="getThumbnailFromId(getYoutubeIdFromUrl(level.video))" alt="">
                             </a>
                             <div class="meta">
                                 <p>#{{ level.rank }}</p>
                                 <h2>{{ level.name }}</h2>
-                                <p style="color: #00b54b; font-weight: 700">{{ progression[i] }}%</p>
+                                <p style="color: #00b54b; font-weight: 700">Completed</p>
                             </div>
                         </div>
+
                         <!-- Current Level -->
-                        <div class="level" v-if="!hasCompleted">
+                        <div class="level" v-if="!hasCompleted && currentLevel" :key="'current'">
                             <a :href="currentLevel.video" target="_blank" class="video">
                                 <img :src="getThumbnailFromId(getYoutubeIdFromUrl(currentLevel.video))" alt="">
                             </a>
@@ -62,37 +63,43 @@ export default {
                                 <p>{{ currentLevel.id }}</p>
                             </div>
                             <form class="actions" v-if="!givenUp">
-                                <input type="number" v-model="percentage" :placeholder="placeholder" :min="currentPercentage + 1" max=100>
-                                <Btn @click.native.prevent="onDone">Done</Btn>
+                                <Btn @click.native.prevent="onComplete">Complete</Btn>
                                 <Btn @click.native.prevent="onGiveUp" style="background-color: #e91e63;">Give Up</Btn>
                             </form>
                         </div>
+
                         <!-- Results -->
                         <div v-if="givenUp || hasCompleted" class="results">
                             <h1>Results</h1>
-                            <p>Number of levels: {{ progression.length }}</p>
-                            <p>Highest percent: {{ currentPercentage }}%</p>
-                            <Btn v-if="currentPercentage < 99 && !hasCompleted" @click.native.prevent="showRemaining = true">Show remaining levels</Btn>
+                            <p>Number of levels completed: {{ progression.length }}</p>
+                            <p>Target: {{ target }}</p>
+                            <p v-if="hasCompleted" style="color: #00b54b; font-weight: 700">
+                                {{ completionMessage }}
+                            </p>
+                            <Btn v-if="givenUp && progression.length < target" @click.native.prevent="showRemaining = true">Show remaining levels</Btn>
                         </div>
+
                         <!-- Remaining Levels -->
-                        <template v-if="givenUp && showRemaining">
-                            <div class="level" v-for="(level, i) in levels.slice(progression.length + 1, levels.length - currentPercentage + progression.length)">
+                        <template v-if="(givenUp && showRemaining) || (hasCompleted && showRemaining)">
+                            <div class="level" v-for="(level, i) in levels.slice(progression.length)" :key="'rem-'+i">
                                 <a :href="level.video" target="_blank" class="video">
                                     <img :src="getThumbnailFromId(getYoutubeIdFromUrl(level.video))" alt="">
                                 </a>
                                 <div class="meta">
                                     <p>#{{ level.rank }}</p>
                                     <h2>{{ level.name }}</h2>
-                                    <p style="color: #d50000; font-weight: 700">{{ currentPercentage + 2 + i }}%</p>
                                 </div>
                             </div>
                         </template>
+                    </template>
+                    <template v-else>
+                        <p>No levels loaded. Start a roulette to populate levels.</p>
                     </template>
                 </div>
             </section>
             <div class="toasts-container">
                 <div class="toasts">
-                    <div v-for="toast in toasts" class="toast">
+                    <div v-for="(toast, idx) in toasts" :key="'t-'+idx" class="toast">
                         <p>{{ toast }}</p>
                     </div>
                 </div>
@@ -102,14 +109,15 @@ export default {
     data: () => ({
         loading: false,
         levels: [],
-        progression: [], // list of percentages completed
-        percentage: undefined,
+        progression: [], // each push represents one completed level; progression.length = number completed
         givenUp: false,
         showRemaining: false,
         useMainList: true,
         useExtendedList: true,
         toasts: [],
         fileInput: undefined,
+        // target number of levels to beat
+        target: 25,
     }),
     mounted() {
         // Create File Input
@@ -126,31 +134,35 @@ export default {
             return;
         }
 
-        this.levels = roulette.levels;
-        this.progression = roulette.progression;
+        this.levels = roulette.levels || [];
+        this.progression = roulette.progression || [];
     },
     computed: {
         currentLevel() {
             return this.levels[this.progression.length];
         },
-        currentPercentage() {
-            return this.progression[this.progression.length - 1] || 0;
-        },
-        placeholder() {
-            return `At least ${this.currentPercentage + 1}%`;
-        },
         hasCompleted() {
+            // Completed when reached target or finished whole list
             return (
-                this.progression[this.progression.length - 1] >= 100 ||
+                this.progression.length >= this.target ||
                 this.progression.length === this.levels.length
             );
         },
         isActive() {
+            // Active if a roulette has levels and it's not given up or completed
             return (
-                this.progression.length > 0 &&
+                this.levels.length > 0 &&
                 !this.givenUp &&
                 !this.hasCompleted
             );
+        },
+        completionMessage() {
+            if (this.progression.length >= this.target) {
+                return `Target reached — you completed ${this.progression.length} levels!`;
+            } else if (this.progression.length === this.levels.length) {
+                return `List finished — you completed all ${this.levels.length} levels!`;
+            }
+            return '';
         },
     },
     methods: {
@@ -191,14 +203,19 @@ export default {
                 list.push(...fullListMapped.slice(75, 150));
             }
 
-            // random 100 levels
+            // random up to 100 levels (keeps original behavior)
             this.levels = shuffle(list).slice(0, 100);
             this.showRemaining = false;
             this.givenUp = false;
             this.progression = [];
-            this.percentage = undefined;
+
+            // If resulting list has fewer items than target and is already empty, user is effectively done only after completing what exists.
+            if (this.levels.length === 0) {
+                this.showToast('No levels available to start.');
+            }
 
             this.loading = false;
+            this.save();
         },
         save() {
             localStorage.setItem(
@@ -209,28 +226,27 @@ export default {
                 }),
             );
         },
-        onDone() {
-            if (!this.percentage) {
+        onComplete() {
+            // mark current as completed — push an object snapshot of the level for export clarity
+            const lvl = this.currentLevel;
+            if (!lvl) {
+                this.showToast('No current level to complete.');
                 return;
             }
 
-            if (
-                this.percentage <= this.currentPercentage ||
-                this.percentage > 100
-            ) {
-                this.showToast('Invalid percentage.');
-                return;
-            }
+            this.progression.push({
+                rank: lvl.rank,
+                id: lvl.id,
+                name: lvl.name,
+            });
 
-            this.progression.push(this.percentage);
-            this.percentage = undefined;
-
+            // if reached completion criteria, auto-save and set givenUp? keep givenUp false
             this.save();
         },
         onGiveUp() {
             this.givenUp = true;
 
-            // Save progress
+            // Remove saved roulette so a fresh start is possible.
             localStorage.removeItem('roulette');
         },
         onImport() {
@@ -241,7 +257,13 @@ export default {
                 return;
             }
 
-            this.fileInput.showPicker();
+            // Show file picker (using showPicker when available)
+            if (this.fileInput.showPicker) {
+                this.fileInput.showPicker();
+            } else {
+                // fallback
+                this.fileInput.click();
+            }
         },
         async onImportUpload() {
             if (this.fileInput.files.length === 0) return;
@@ -256,7 +278,7 @@ export default {
             try {
                 const roulette = JSON.parse(await file.text());
 
-                if (!roulette.levels || !roulette.progression) {
+                if (!roulette.levels || !('progression' in roulette)) {
                     this.showToast('Invalid file.');
                     return;
                 }
@@ -266,7 +288,6 @@ export default {
                 this.save();
                 this.givenUp = false;
                 this.showRemaining = false;
-                this.percentage = undefined;
             } catch {
                 this.showToast('Invalid file.');
                 return;
