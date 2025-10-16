@@ -48,7 +48,8 @@ export default {
                             <div class="meta">
                                 <p>#{{ level.rank }}</p>
                                 <h2>{{ level.name }}</h2>
-                                <p style="color: #00b54b; font-weight: 700">Completed</p>
+                                <p v-if="level.id === 'Deleted'" style="color: #d50000; font-weight: 700">Deleted</p>
+                                <p v-else style="color: #00b54b; font-weight: 700">Completed</p>
                             </div>
                         </div>
 
@@ -60,7 +61,8 @@ export default {
                             <div class="meta">
                                 <p>#{{ currentLevel.rank }}</p>
                                 <h2>{{ currentLevel.name }}</h2>
-                                <p>{{ currentLevel.id }}</p>
+                                <p v-if="currentLevel.id === 'Deleted'" style="color: #d50000; font-weight: 700">Deleted</p>
+                                <p v-else>{{ currentLevel.id }}</p>
                             </div>
                             <form class="actions" v-if="!givenUp">
                                 <Btn @click.native.prevent="onComplete">Complete</Btn>
@@ -88,6 +90,7 @@ export default {
                                 <div class="meta">
                                     <p>#{{ level.rank }}</p>
                                     <h2>{{ level.name }}</h2>
+                                    <p v-if="level.id === 'Deleted'" style="color: #d50000; font-weight: 700">Deleted</p>
                                 </div>
                             </div>
                         </template>
@@ -118,6 +121,8 @@ export default {
         fileInput: undefined,
         // target number of levels to beat
         target: 25,
+        // Audio element for completion sound
+        completionAudio: null,
     }),
     mounted() {
         // Create File Input
@@ -130,12 +135,22 @@ export default {
         // Load progress from local storage
         const roulette = JSON.parse(localStorage.getItem('roulette'));
 
-        if (!roulette) {
-            return;
+        if (roulette) {
+            this.levels = roulette.levels || [];
+            this.progression = roulette.progression || [];
         }
 
-        this.levels = roulette.levels || [];
-        this.progression = roulette.progression || [];
+        // create/preload audio (path used: /assets/complete.mp3)
+        try {
+            this.completionAudio = new Audio('/assets/complete.mp3');
+            // try to load (may still be blocked by browser until gesture)
+            if (typeof this.completionAudio.load === 'function') {
+                this.completionAudio.load();
+            }
+        } catch (e) {
+            // ignore audio init errors - we'll catch play errors later
+            this.completionAudio = null;
+        }
 
         // If the current level(s) at load are "Deleted", auto-complete them
         this.$nextTick(() => {
@@ -256,8 +271,14 @@ export default {
                 name: lvl.name,
             });
 
-            // if reached completion criteria, auto-save and keep givenUp false
+            // save
             this.save();
+
+            // If we just reached completion criteria, notify and play sound
+            if (this.hasCompleted) {
+                this.showToast('Roulette beaten!');
+                this.playCompletionSound();
+            }
         },
         onGiveUp() {
             this.givenUp = true;
@@ -357,6 +378,31 @@ export default {
             if (autoCount > 0) {
                 this.save();
                 this.showToast(`Auto-completed ${autoCount} deleted level${autoCount > 1 ? 's' : ''}.`);
+                // If auto-completing just pushed us over the finish line, celebrate
+                if (this.hasCompleted) {
+                    this.showToast('Roulette beaten!');
+                    this.playCompletionSound();
+                }
+            }
+        },
+        /**
+         * Play the completion sound if available.
+         * Browsers may block autoplay until user gesture; errors are silently ignored.
+         */
+        playCompletionSound() {
+            try {
+                if (!this.completionAudio) {
+                    this.completionAudio = new Audio('/assets/complete.mp3');
+                }
+                // Attempt playback; ignore promise rejection (blocked)
+                const p = this.completionAudio.play();
+                if (p && typeof p.catch === 'function') {
+                    p.catch(() => {
+                        // swallow play errors (e.g. autoplay restrictions)
+                    });
+                }
+            } catch (e) {
+                // ignore
             }
         },
         showToast(msg) {
